@@ -25,13 +25,15 @@
   (fn []
     [:svg {:style {:border "thin solid black"}
            :width 1000 :height 1000}
-     (rect 1 600 500 100 100)
-     (rect 2 300 500 20 20)]))
+     (rect 1 600 450 30 30)
+     (rect 2 300 500 20 20)
+     (for [i (range 5)]
+       (rect (+ i 3) (* i 100) 30, 20 20))]))
 
 (defn svg-area []
   [c/h-box
    :gap "1em"
-   :size "50px"
+   :size "auto"
    :margin "10px"
    :align :center
    :children [[svg-pane]]])
