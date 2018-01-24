@@ -7,12 +7,26 @@
    :occupied 0
    :time-to-empty time-to-empty})
 
-(defn add-sinks
+#_(defn add-sinks
   [n]
   (map #(make-sink % 300 120) (range n)))
 
+(defn make-agent
+  [idnum]
+  {:id (keyword (str "agent" idnum))})
+
+#_(defn add-agents
+  [n]
+  (map make-agent (range n)))
+
+(defn add-type
+  "add vector of n instances of type to db
+  using function make-type-f to create each instance"
+  [make-type-f n]
+  (mapv make-type-f (range n)))
+
 (def default-db
   {:name " via re-frame"
-   :sinks (add-sinks 5)
+   :sinks (add-type #(make-sink % 300 120) 5)
    :sources []
-   :agents []})
+   :agents (add-type make-agent 10)})

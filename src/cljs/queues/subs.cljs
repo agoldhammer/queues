@@ -10,3 +10,8 @@
  ::sink-ids
  (fn [db]
    (map :id (:sinks db))))
+
+(r/reg-sub
+ ::agent-ids
+ (fn [db]
+   (map :id (:agents db))))

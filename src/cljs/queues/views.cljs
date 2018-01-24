@@ -36,9 +36,9 @@
   []
   (fn []
      [:svg {:style {:border "thin solid black"}
-           :width 1000 :height 100}
-      (map-indexed #(rect %2 (* %1 50) 0 38 18)
-                   @(f/subscribe [::subs/sink-ids]))]))
+           :width 1000 :height 50}
+      (map-indexed #(rect %2 (* %1 100) 0 90 50)
+                   @(f/subscribe [::subs/agent-ids]))]))
 
 (defn sink-elt
   "Creates set of sink elts with ids from db"
@@ -49,6 +49,12 @@
        (map-indexed #(rect %2 (* %1 200) 0 180 200)
                    @(f/subscribe [::subs/sink-ids]))
      #_(circle 99 4 4 2)]))
+
+(defn queue-elt
+  []
+  (fn []
+    [:svg {:style {:border "thin solid black"}
+           :width 1000 :height 400}]))
 
 (defn agent-area []
   [c/h-box
@@ -66,6 +72,14 @@
    :align :center
    :children [[sink-elt]]])
 
+(defn queuing-area []
+  [c/h-box
+   :gap "1em"
+   :size "auto"
+   :margin "10px"
+   :align :center
+   :children [[queue-elt]]])
+
 (defn title-area []
   [c/h-box
    :margin "10px"
@@ -82,4 +96,4 @@
                            :style {:background-color "lightblue"}]]]
               [c/line]
               [c/gap :size "15px"]
-              [sink-area] [agent-area]]])
+              [sink-area] [agent-area] [queuing-area]]])
