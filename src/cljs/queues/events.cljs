@@ -1,8 +1,8 @@
 (ns queues.events
-  (:require [re-frame.core :as re-frame]
+  (:require [re-frame.core :as r]
             [queues.db :as db]))
 
-(re-frame/reg-event-db
+(r/reg-event-db
  ::initialize-db
  (fn  [_ _]
    db/default-db))

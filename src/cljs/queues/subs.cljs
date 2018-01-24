@@ -1,7 +1,12 @@
 (ns queues.subs
-  (:require [re-frame.core :as re-frame]))
+  (:require [re-frame.core :as r]))
 
-(re-frame/reg-sub
+(r/reg-sub
  ::name
  (fn [db]
    (:name db)))
+
+(r/reg-sub
+ ::sink-ids
+ (fn [db]
+   (map :id (:sinks db))))
