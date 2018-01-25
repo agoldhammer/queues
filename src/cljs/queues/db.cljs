@@ -1,6 +1,7 @@
 (ns queues.db
   (:require [kixi.stats.core :as kixi]
-            [kixi.stats.distribution :as d]))
+            [kixi.stats.distribution :as d]
+            [re-frame.core :as rf]))
 
 (def sched-deps [3.25 3.5 4.0 4.5 5])
 
@@ -38,3 +39,26 @@
 (defn gen-arrival-deltas
   [n]
   (map Math/round (d/sample n arrival-t-dist)))
+
+(defn make-psgr
+  [idnum dest arrived-at processed-at]
+  {:id (keyword (str "psgr" idnum))
+   :dest dest
+   :arrived-at arrived-at
+   :processed-at processed-at})
+
+(defn calc-arr
+  [scheduled delta]
+  (let [arr (- scheduled delta)]
+    (cond
+      (< arr 0) 0
+      (> arr scheduled) scheduled
+      :else arr)))
+
+(defn make-psgrs
+  [dest n]
+  (let [scheduled @(rf/subscribe [:scheduled dest])
+        deltas (gen-arrival-deltas n)]
+    (map-indexed #(make-psgr %1 dest
+                             (calc-arr scheduled %2) 0)
+                 deltas)))
