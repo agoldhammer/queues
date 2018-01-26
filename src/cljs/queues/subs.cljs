@@ -1,6 +1,5 @@
 (ns queues.subs
-  (:require [re-frame.core :as r]
-            [queues.db :as qdb]))
+  (:require [re-frame.core :as r]))
 
 (r/reg-sub
  ::name
@@ -17,8 +16,6 @@
  (fn [db]
    (keys (:agents db))))
 
-
-
 (r/reg-sub
  ::sinks
  (fn [db]
@@ -29,8 +26,22 @@
  (fn [db [_ sink-id]]
    (sink-id (:sinks db))))
 
-
 (r/reg-sub
- :scheduled
+ ::scheduled
  (fn [db [_ sink-id]]
    (get-in db [:sinks sink-id :scheduled])))
+
+(r/reg-sub
+ ::psgrs
+ (fn [db]
+   (:psgrs db)))
+
+(r/reg-sub
+ ::queued
+ (fn [db]
+   (:queued db)))
+
+(r/reg-sub
+ ::clock
+ (fn [db]
+   (str (:clock db))))

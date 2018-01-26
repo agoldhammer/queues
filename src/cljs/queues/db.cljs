@@ -1,9 +1,15 @@
 (ns queues.db
   (:require [kixi.stats.core :as kixi]
             [kixi.stats.distribution :as d]
-            [re-frame.core :as rf]))
+            [re-frame.core :as rf]
+            [queues.subs :as subs]
+            [cljs.core.async :as async])
+  (:require-macros [cljs.core.async.macros
+                    :as m :refer [go alt!]]))
 
 (def sched-deps [3.25 3.5 4.0 4.5 5])
+
+(def NPSGRS 10)
 
 (defn make-sink
   [idnum capacity]
@@ -24,12 +30,6 @@
     (reduce conj {} (map
                      (fn [ent] [(:id ent) ent])
                      entities))))
-
-(def default-db
-  {:name " via re-frame"
-   :sinks (add-type #(make-sink % 300) 5)
-   :sources []
-   :agents (add-type make-agent 10)})
 
 ;; we model arrival times as normally distributed around
 ;; 90 minutes ahead of departure, with sd of 30 mins
@@ -56,9 +56,30 @@
       :else arr)))
 
 (defn make-psgrs
-  [dest n]
-  (let [scheduled @(rf/subscribe [:scheduled dest])
-        deltas (gen-arrival-deltas n)]
+  [dest scheduled n]
+  (let [deltas (gen-arrival-deltas n)]
     (map-indexed #(make-psgr %1 dest
                              (calc-arr scheduled %2) 0)
                  deltas)))
+
+(defn sort-psgrs
+  [psgrs]
+  (sort-by #(:arrived-at %) psgrs))
+
+;; TODO this is for testing only; need to concat psgr lists
+;; for all sinks in final version
+(defn make-psgr-list [dest scheduled n]
+  (doall (sort-psgrs (make-psgrs dest scheduled n))))
+
+(def default-db
+  (let [partial-db
+        {:name " via re-frame"
+         :clock 0
+         :sinks (add-type #(make-sink % NPSGRS) 5)
+         :psgrs []
+         :queued []
+         :agents (add-type make-agent 10)}]
+    ;; TODO: this is for testing only; uses only one destination
+    (assoc partial-db :psgrs (make-psgr-list :sink0
+                                             (:scheduled (:sink0 (:sinks partial-db)))
+                                             NPSGRS))))
