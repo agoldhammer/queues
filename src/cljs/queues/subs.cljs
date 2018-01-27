@@ -1,52 +1,58 @@
 (ns queues.subs
-  (:require [re-frame.core :as r]))
+  (:require [re-frame.core :as rf]))
 
-(r/reg-sub
+(rf/reg-sub
  ::name
  (fn [db]
    (:name db)))
 
-(r/reg-sub
+(rf/reg-sub
  ::sink-ids
  (fn [db]
    (keys (:sinks db))))
 
-(r/reg-sub
+(rf/reg-sub
  ::agent-ids
  (fn [db]
    (keys (:agents db))))
 
-(r/reg-sub
+(rf/reg-sub
  ::sinks
  (fn [db]
    (:sinks db)))
 
-(r/reg-sub
+(rf/reg-sub
  ::sink
  (fn [db [_ sink-id]]
    (sink-id (:sinks db))))
 
-(r/reg-sub
+(rf/reg-sub
  ::scheduled
  (fn [db [_ sink-id]]
    (get-in db [:sinks sink-id :scheduled])))
 
-(r/reg-sub
+(rf/reg-sub
  ::psgrs
  (fn [db]
    (:psgrs db)))
 
-(r/reg-sub
+(rf/reg-sub
  ::queued
  (fn [db]
    (:queued db)))
 
-(r/reg-sub
+(rf/reg-sub
  ::clock
  (fn [db]
    (str (:clock db))))
 
-(r/reg-sub
+(rf/reg-sub
  ::running?
  (fn [db]
    (str (:running db))))
+
+;; return first psgr in unprocessed queue
+(rf/reg-sub
+ ::first-unprocessed
+ (fn [db]
+   (first (:psgrs db))))

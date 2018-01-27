@@ -7,6 +7,12 @@
   (:require-macros [cljs.core.async.macros
                     :as m :refer [go alt!]]))
 
+;; clock channel
+(def clock-ch (async/chan (async/dropping-buffer 1)))
+
+(defn pulse []
+  (async/put! clock-ch :pulse))
+
 (def sched-deps [3.25 3.5 4.0 4.5 5])
 
 (def NPSGRS 10)
@@ -84,3 +90,13 @@
     (assoc partial-db :psgrs (make-psgr-list :sink0
                                              (:scheduled (:sink0 (:sinks partial-db)))
                                              NPSGRS))))
+
+;; go routine to move items from unprocessed to queued
+(m/go-loop []
+  (async/<! clock-ch)
+  (let [now @(rf/subscribe [::subs/clock])
+        nextup @(rf/subscribe [::subs/first-unprocessed])]
+    (when (> now (:arrived-at nextup)
+             #_(println nextup)
+             1)))
+  (recur))

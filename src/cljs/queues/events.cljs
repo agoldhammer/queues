@@ -24,5 +24,12 @@
      (update-in db [:clock] inc)
      db)))
 
+;; send ticks to clock-ch and update :clock in db
+(defn heartbeat
+  []
+  (rf/dispatch [::tick])
+  (db/pulse))
+
+;; drive action with regular ticks
 (def clock
-  (js/setInterval #(rf/dispatch [::tick]) 500))
+  (js/setInterval heartbeat 500))
