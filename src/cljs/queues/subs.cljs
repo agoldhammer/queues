@@ -45,3 +45,8 @@
  ::clock
  (fn [db]
    (str (:clock db))))
+
+(r/reg-sub
+ ::running?
+ (fn [db]
+   (str (:running db))))

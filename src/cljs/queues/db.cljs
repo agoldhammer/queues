@@ -75,6 +75,7 @@
   (let [partial-db
         {:name " via re-frame"
          :clock 0
+         :running false
          :sinks (add-type #(make-sink % NPSGRS) 5)
          :psgrs []
          :queued []

@@ -8,8 +8,21 @@
    db/default-db))
 
 (rf/reg-event-db
- ::start
+ ::start-stop
  (fn [db _]
-   (let [earliest (:arrived-at (first (:psgrs db)))]
-     #_(println (:psgrs db))
-     (assoc db :clock (dec earliest))) ))
+   (if (:running db)
+     (assoc db :running false)
+     (let [earliest (:arrived-at (first (:psgrs db)))]
+       (-> db
+           (assoc :running true)
+           (assoc :clock (dec earliest))) )) ))
+
+(rf/reg-event-db
+ ::tick
+ (fn [db _]
+   (if (:running db)
+     (update-in db [:clock] inc)
+     db)))
+
+(def clock
+  (js/setInterval #(rf/dispatch [::tick]) 500))

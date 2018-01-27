@@ -108,7 +108,7 @@
                :margin "10px"
                :children [[c/button :label "Start"
                            :style {:background-color "lightblue"}
-                           :on-click #(rf/dispatch [::events/start])]
+                           :on-click #(rf/dispatch [::events/start-stop])]
                           [c/gap :size "15px"]
                           [c/title
                            :level :level2
