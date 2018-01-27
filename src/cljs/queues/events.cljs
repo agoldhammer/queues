@@ -24,6 +24,13 @@
      (update-in db [:clock] inc)
      db)))
 
+(rf/reg-event-db
+ :queue-one
+ (fn [db [_ psgr]]
+   (-> db
+       (update-in [:psgrs] rest)
+       (update-in [:queued] conj psgr))))
+
 ;; send ticks to clock-ch and update :clock in db
 (defn heartbeat
   []
