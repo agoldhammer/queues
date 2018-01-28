@@ -56,3 +56,18 @@
  ::first-unprocessed
  (fn [db]
    (first (:psgrs db))))
+
+(rf/reg-sub
+ :agents
+ (fn [db _]
+   (:agents db)))
+
+(rf/reg-sub
+ :agent-by-id
+ (fn [db [_ id]]
+   (id (:agents db))))
+
+(rf/reg-sub
+ :agent-busy?
+ (fn [db [_ id]]
+   (:busy (id (:agents db)))))

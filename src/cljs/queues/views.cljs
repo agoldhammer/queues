@@ -22,10 +22,10 @@
             :r r}])
 
 (defn rect
-  [id x y w h]
+  [id x y w h color]
   [:rect {:id id
           :key id
-          :style {:fill "rgba(200,128,128,0.4)"
+          :style {:fill color ;; "#80ffaa" ;; "rgba(200,128,128,0.4)"
                   :stroke-width 2
                   :stroke :black}
           :x x
@@ -34,13 +34,20 @@
           :height h
           :on-click #(prn (-> % .-target .-id))}])
 
+(defn agent-rect
+  [id i-pos]
+  (let [busy @(rf/subscribe [:agent-busy? id])
+        color (if busy "red" "#80ffaa")]
+    (rect id (* i-pos 100) 0 90 48  color)) )
+
 (defn agent-elt
   []
   (fn []
      [:svg {:style {:border "thin solid black"}
            :width 1000 :height 50}
-      (map-indexed #(rect %2 (* %1 100) 0 90 50)
-                   @(rf/subscribe [::subs/agent-ids]))]))
+      (doall
+       (map-indexed #(agent-rect %2 %1)
+                    @(rf/subscribe [::subs/agent-ids])))]))
 
 (defn sink-elt
   "Creates set of sink elts with ids from db"
@@ -48,7 +55,7 @@
   (fn []
     [:svg {:style {:border "thin solid black"}
            :width 1000 :height 200}
-       (map-indexed #(rect %2 (* %1 200) 0 180 200)
+       (map-indexed #(rect %2 (* %1 200) 0 180 196 "yellow")
                    @(rf/subscribe [::subs/sink-ids]))
      (circle 99 90 5 2)]))
 

@@ -26,7 +26,10 @@
 
 (defn make-agent
   [idnum]
-  {:id (keyword (str "agent" idnum))})
+  {:id (keyword (str "agent" idnum))
+   :busy false
+   :proc-time 0
+   :open true})
 
 (defn add-type
   "add map of ids to n instances of type under type key in db

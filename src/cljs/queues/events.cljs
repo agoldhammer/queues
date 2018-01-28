@@ -28,7 +28,7 @@
  :queue-one
  (fn [db [_ psgr]]
    (-> db
-       (update-in [:psgrs] rest)
+       (update-in [:psgrs] #(-> % rest vec))
        (update-in [:queued] conj psgr))))
 
 ;; send ticks to clock-ch and update :clock in db
@@ -39,4 +39,4 @@
 
 ;; drive action with regular ticks
 (def clock
-  (js/setInterval heartbeat 500))
+  (js/setInterval heartbeat 100))
