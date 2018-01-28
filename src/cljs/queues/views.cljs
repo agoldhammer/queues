@@ -8,7 +8,7 @@
 (defn title []
   [c/title
    :label (str "A BIG Hello from Art" @(rf/subscribe [::subs/name]))
-   :level :level1])
+   :level :level4])
 
 (defn circle
   [id cx cy r]
@@ -16,6 +16,7 @@
             :style {:fill :red
                     :stroke-width 2
                     :stroke :black}
+            :on-click #(prn (-> % .-target .-id))
             :cx cx
             :cy cy
             :r r}])
