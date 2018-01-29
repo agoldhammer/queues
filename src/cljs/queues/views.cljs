@@ -7,12 +7,13 @@
 
 (defn title []
   [c/title
-   :label (str "A BIG Hello from Art" @(rf/subscribe [::subs/name]))
+   :label (str "A BIG Hello from Art" @(rf/subscribe [:name]))
    :level :level4])
 
 (defn circle
   [id cx cy r]
   [:circle {:key id
+            :id id
             :style {:fill :red
                     :stroke-width 2
                     :stroke :black}
@@ -60,23 +61,24 @@
      (circle 99 90 5 2)]))
 
 (defn display-queued
-  [count]
+  []
   (let [pos 0
         row 0
         x   500
         y   14
         id  1000
-        queue @(rf/subscribe [::subs/queued])
+        queue @(rf/subscribe [:queued])
         ]
-    (for [i (range count)]
-     (circle (+ id i) (+ x (* 15 i)) y 6) )))
+    (doall
+     (map-indexed
+      #(circle (:id %2) (+ x (* 15 %1)) y 6) queue))))
 
 (defn queue-elt
   []
   (fn []
     [:svg {:style {:border "thin solid black"}
            :width 1000 :height 400}
-     (display-queued 5)]))
+     (display-queued)]))
 
 (defn agent-area []
   [c/h-box

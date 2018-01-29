@@ -97,8 +97,8 @@
 ;; go routine to move items from unprocessed to queued
 (m/go-loop []
   (async/<! clock-ch)
-  (when-let [nextup @(rf/subscribe [::subs/first-unprocessed])]
-    (let [now @(rf/subscribe [::subs/clock])]
+  (when-let [nextup @(rf/subscribe [:first-unprocessed])]
+    (let [now @(rf/subscribe [:clock])]
       (when (> now (:arrived-at nextup))
         (rf/dispatch [:queue-one nextup])))
     (recur)))

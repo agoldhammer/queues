@@ -2,7 +2,7 @@
   (:require [re-frame.core :as rf]))
 
 (rf/reg-sub
- ::name
+ :name
  (fn [db]
    (:name db)))
 
@@ -32,28 +32,28 @@
    (get-in db [:sinks sink-id :scheduled])))
 
 (rf/reg-sub
- ::psgrs
+ :psgrs
  (fn [db]
    (:psgrs db)))
 
 (rf/reg-sub
- ::queued
+ :queued
  (fn [db]
    (:queued db)))
 
 (rf/reg-sub
- ::clock
+ :clock
  (fn [db]
    (str (:clock db))))
 
 (rf/reg-sub
- ::running?
+ :running?
  (fn [db]
    (str (:running db))))
 
 ;; return first psgr in unprocessed queue
 (rf/reg-sub
- ::first-unprocessed
+ :first-unprocessed
  (fn [db]
    (first (:psgrs db))))
 
