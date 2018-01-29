@@ -15,7 +15,7 @@
 
 (def sched-deps [3.25 3.5 4.0 4.5 5])
 
-(def NPSGRS 10)
+(def NPSGRS 300)
 
 (defn make-sink
   [idnum capacity]

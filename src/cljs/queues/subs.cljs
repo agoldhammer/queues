@@ -7,12 +7,12 @@
    (:name db)))
 
 (rf/reg-sub
- ::sink-ids
+ :sink-ids
  (fn [db]
    (keys (:sinks db))))
 
 (rf/reg-sub
- ::agent-ids
+ :agent-ids
  (fn [db]
    (keys (:agents db))))
 
@@ -71,3 +71,8 @@
  :agent-busy?
  (fn [db [_ id]]
    (:busy (id (:agents db)))))
+
+(rf/reg-sub
+ :agent-open?
+ (fn [db [_ id]]
+   (:open (id (:agents db)))))

@@ -31,6 +31,11 @@
        (update-in [:psgrs] #(-> % rest vec))
        (update-in [:queued] conj psgr))))
 
+(rf/reg-event-db
+ :agent-toggle-open
+ (fn [db [_ id]]
+      (update-in db [:agents id :open] not)))
+
 ;; send ticks to clock-ch and update :clock in db
 (defn heartbeat
   []
@@ -39,4 +44,4 @@
 
 ;; drive action with regular ticks
 (def clock
-  (js/setInterval heartbeat 100))
+  (js/setInterval heartbeat 50))
