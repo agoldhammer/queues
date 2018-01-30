@@ -22,12 +22,12 @@
    (:sinks db)))
 
 (rf/reg-sub
- ::sink
+ :sink
  (fn [db [_ sink-id]]
    (sink-id (:sinks db))))
 
 (rf/reg-sub
- ::scheduled
+ :scheduled
  (fn [db [_ sink-id]]
    (get-in db [:sinks sink-id :scheduled])))
 

@@ -18,7 +18,7 @@
         (if (and (< xnew xmax)
                  (> xnew xmin))
           (recur (conj res [xnew y]) xnew y dir (inc i))
-          (recur (conj res [x ynew]) x ynew (* -1 dir) (inc i))))
+          (recur (conj res [x ynew]) x ynew (- dir) (inc i))))
       res)))
 
 

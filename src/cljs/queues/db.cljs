@@ -91,7 +91,8 @@
          :agents (add-type make-agent 10)}]
     ;; TODO: this is for testing only; uses only one destination
     (assoc partial-db :psgrs (make-psgr-list :sink0
-                                             (:scheduled (:sink0 (:sinks partial-db)))
+                                             (:scheduled (:sink0
+                                                          (:sinks partial-db)))
                                              NPSGRS))))
 
 ;; go routine to move items from unprocessed to queued

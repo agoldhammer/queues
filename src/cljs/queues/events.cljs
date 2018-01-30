@@ -44,4 +44,4 @@
 
 ;; drive action with regular ticks
 (def clock
-  (js/setInterval heartbeat 50))
+  (js/setInterval heartbeat 25))
