@@ -28,13 +28,20 @@
  :queue-one
  (fn [db [_ psgr]]
    (-> db
-       (update-in [:psgrs] #(-> % rest vec))
+       (update-in [:psgrs] pop)
        (update-in [:queued] conj psgr))))
 
 (rf/reg-event-db
  :agent-toggle-open
  (fn [db [_ id]]
       (update-in db [:agents id :open] not)))
+
+;; add item to a persistent queue
+;; e.g. (dispatch [add-to-sink-occupied asink psgr])
+(rf/reg-event-db
+ :add-to-sink-occupied
+ (fn [db [_ sink psgr]]
+   (update-in db [:sinks sink] conj psgr)))
 
 ;; send ticks to clock-ch and update :clock in db
 (defn heartbeat

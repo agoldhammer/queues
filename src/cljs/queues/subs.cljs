@@ -42,6 +42,16 @@
    (:queued db)))
 
 (rf/reg-sub
+ :qhead
+ (fn [db]
+   (peek (:queued db))))
+
+(rf/reg-sub
+ :sink-occupied-peek
+ (fn [db [_ sink]]
+   (peek (:occupied (sink (:sinks db))))))
+
+(rf/reg-sub
  :clock
  (fn [db]
    (str (:clock db))))
@@ -55,7 +65,7 @@
 (rf/reg-sub
  :first-unprocessed
  (fn [db]
-   (first (:psgrs db))))
+   (peek (:psgrs db))))
 
 (rf/reg-sub
  :agents
