@@ -6,13 +6,13 @@
             ))
 
 ;; layout of queues in rows alternating in direction, like mower
-(defn mower [n xstart ystart xspace yspace xmax ymax xmin]
+(defn mower [{:keys [nitems xstart ystart xspace yspace xmax ymax xmin]}]
   (loop [res []
          x   xstart
          y   ystart
          dir 1
          i   0]
-    (if (< i n)
+    (if (< i nitems)
       (let [xnew (+ x (* dir xspace))
             ynew (+ y yspace)]
         (if (and (< xnew xmax)
@@ -82,7 +82,14 @@
   (let [queue @(rf/subscribe [:queued])]
     (doall
      (map #(circle (:id %1) %2 6) queue
-              (mower (count queue) 500 14 15 20 990 300 15)))))
+          (mower {:nitems (count queue)
+                  :xstart 500
+                  :ystart 14
+                  :xspace 15
+                  :yspace 20
+                  :xmax 990
+                  :ymax 290
+                  :xmin 15})))))
 
 (defn queue-elt
   []
