@@ -14,7 +14,11 @@
 
 (def clock-ch-1 (async/chan))
 
+#_(def clock-ch-2 (async/chan))
+
 (async/tap multi-clock clock-ch-1)
+
+#_(async/tap multi-clock clock-ch-2)
 
 (defn pulse []
   (async/put! clock-ch :pulse))
@@ -35,7 +39,7 @@
 (defn make-agent
   [idnum]
   {:id (keyword (str "agent" idnum))
-   :busy false
+   :busy nil
    :proc-time 0
    :open true})
 
@@ -52,6 +56,13 @@
 ;; 90 minutes ahead of departure, with sd of 30 mins
 
 (def arrival-t-dist (d/normal {:mu 5400 :sd 1800}))
+
+(def agent-t-dist (d/normal {:mu 120 :sd 25}))
+
+(defn agent-time
+  []
+  (let [x (Math/round (first (d/sample 1 agent-t-dist)))]
+    (if (< x 40) 40 x)))
 
 (defn gen-arrival-deltas
   [n]
@@ -112,3 +123,23 @@
       (when (> now (:arrived-at nextup))
         (rf/dispatch [:queue-one nextup])))
     (recur)))
+
+(defn agt-open? [id]
+  @(rf/subscribe [:agent-open? id]))
+
+(defn agt-not-busy? [id]
+  (not @(rf/subscribe [:agent-busy? id])))
+
+(defn open-agents []
+  (let [agents @(rf/subscribe [:agents])]
+    (filter agt-open? (keys agents))))
+
+(defn available-agents []
+  (filter agt-not-busy? (open-agents)))
+
+;; go routine to move items from queued to available agent(s)
+#_(m/go-loop []
+  (async/<! clock-ch-2)
+  (let [avail-agts (available-agents)])
+  (when-let [nextup @(rf/subscribe [:qhead])]
+    ))

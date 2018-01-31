@@ -32,6 +32,14 @@
        (update-in [:queued] conj psgr))))
 
 (rf/reg-event-db
+ :queue-to-agent
+ (fn [db [_ agent]]
+   (when-let [psgr (peek (:queued db))]
+     (-> db
+         (update-in [:agents agent :busy] conj psgr)
+         (update-in [:queued] pop)))))
+
+(rf/reg-event-db
  :agent-toggle-open
  (fn [db [_ id]]
       (update-in db [:agents id :open] not)))

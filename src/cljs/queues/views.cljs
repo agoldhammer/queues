@@ -52,12 +52,20 @@
           :height h
           :on-click #(clickfn id)}])
 
+(defn center-of-rect [x y w h]
+  [(+ x (/ w 2)) (+ y (/ h 2))])
+
 (defn agent-rect
   [id i-pos]
-  (let [open @(rf/subscribe [:agent-open? id])
-        color (if open "#80ffaa" "red")]
-    (rect id (* i-pos 100) 0 90 48  color
-          #(rf/dispatch [:agent-toggle-open %]))))
+  (let [open  @(rf/subscribe [:agent-open? id])
+        color (if open "#80ffaa" "red")
+        busy  @(rf/subscribe [:agent-busy? id])
+        x     (* i-pos 100)
+        agtrect (rect id x 0 90 48  color
+                   #(rf/dispatch [:agent-toggle-open %]))]
+    (if busy
+      (seq [agtrect (circle (:id busy) (center-of-rect x 0 90 48) 4)])
+      agtrect)))
 
 (defn agent-elt
   []
@@ -122,10 +130,17 @@
    :align :center
    :children [[queue-elt]]])
 
+(def HGAP1 [c/gap :size "10px"])
+
 (defn title-area []
   [c/h-box
    :margin "10px"
-   :children [[title]]])
+   :gap "5px"
+   :children [[c/label :label "No. queued"]
+              [c/label :label (str (count @(rf/subscribe [:queued])))]
+              HGAP1
+              [c/label :label "Not yet arrived"]
+              [c/label :label (str (count @(rf/subscribe [:psgrs])))]]])
 
 (defn main-panel []
   [c/v-box
