@@ -80,7 +80,7 @@
 (rf/reg-sub
  :agent-busy?
  (fn [db [_ id]]
-   (:busy (id (:agents db)))))
+   (peek (:busy (id (:agents db))))))
 
 (rf/reg-sub
  :agent-open?

@@ -56,7 +56,7 @@
  (fn [db [_ agtid proctime]]
    (-> db
        ;; move head of q to agent
-       (update-in [:agents agtid] conj {:busy (peek (:queued db))})
+       (update-in [:agents agtid :busy] conj (peek (:queued db)))
        ;; then update proc-time
        (update-in [:agents agtid] conj {:proc-time proctime})
        (update-in [:queued] pop))))

@@ -39,7 +39,7 @@
 (defn make-agent
   [idnum]
   {:id (keyword (str "agent" idnum))
-   :busy nil
+   :busy #queue []
    :proc-time 0
    :open true})
 
