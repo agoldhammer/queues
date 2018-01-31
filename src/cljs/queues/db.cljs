@@ -14,7 +14,7 @@
 
 (def clock-ch-1 (async/chan))
 
-#_(def clock-ch-2 (async/chan))
+(def clock-ch-2 (async/chan))
 
 (async/tap multi-clock clock-ch-1)
 
@@ -137,9 +137,17 @@
 (defn available-agents []
   (filter agt-not-busy? (open-agents)))
 
+(defn move-from-qhead-to-agt
+  [agtid proctime]
+  (rf/dispatch [:qhead-to-agt agtid proctime]))
+
 ;; go routine to move items from queued to available agent(s)
+;; On each tick: visit each available agent (open and not busy)
+;; move psgr from head of queue
+;; and set processing time to random pick from the distribution
 #_(m/go-loop []
   (async/<! clock-ch-2)
-  (let [avail-agts (available-agents)])
-  (when-let [nextup @(rf/subscribe [:qhead])]
-    ))
+  (let [avail-agts (available-agents)]
+    (doseq [agt avail-agts]
+      (when-let [nextup @(rf/subscribe [:qhead])]
+        (rf/dispatch [:psgr-to-agent (:id agt) (:id nextup) (agent-time)])))))

@@ -51,6 +51,16 @@
  (fn [db [_ sink psgr]]
    (update-in db [:sinks sink] conj psgr)))
 
+(rf/reg-event-db
+ :qhead-to-agt
+ (fn [db [_ agtid proctime]]
+   (-> db
+       ;; move head of q to agent
+       (update-in [:agents agtid] conj {:busy (peek (:queued db))})
+       ;; then update proc-time
+       (update-in [:agents agtid] conj {:proc-time proctime})
+       (update-in [:queued] pop))))
+
 ;; send ticks to clock-ch and update :clock in db
 (defn heartbeat
   []
