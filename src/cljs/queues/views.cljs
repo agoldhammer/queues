@@ -59,7 +59,7 @@
   [id i-pos]
   (let [open  @(rf/subscribe [:agent-open? id])
         color (if open "#80ffaa" "red")
-        busy  @(rf/subscribe [:agent-busy? id])
+        busy  @(rf/subscribe [:agent-working-on id])
         x     (* i-pos 100)
         agtrect (rect id x 0 90 48  color
                    #(rf/dispatch [:agent-toggle-open %]))]
@@ -76,7 +76,7 @@
        (map-indexed #(agent-rect %2 %1)
                     @(rf/subscribe [:agent-ids])))]))
 
-(defn emptyq? [q]
+(defn- emptyq? [q]
   (not (peek q)))
 
 (defn pcircles

@@ -116,6 +116,9 @@
                                                             NPSGRS)))))
 
 
+(defn- emptyq? [q]
+  (not (peek q)))
+
 ;; go routine to move items from unprocessed to queued
 (m/go-loop []
   (async/<! clock-ch-1)
@@ -139,8 +142,8 @@
   (filter agt-not-busy? (open-agents)))
 
 (defn move-from-qhead-to-agt
-  [agtid proctime]
-  (rf/dispatch [:qhead-to-agt agtid proctime]))
+  [psgr agtid proctime]
+  (rf/dispatch [:psgr-to-agt psgr agtid proctime]))
 
 (defn move-from-agt-to-sink
   [agtid]
@@ -151,17 +154,24 @@
 ;; move psgr from head of queue
 ;; and set processing time to random pick from the distribution
 (m/go-loop []
-  (async/<! clock-ch-1)
+  #_(async/<! clock-ch-1)
+
   (let [avail-agts (available-agents)]
-    (doseq [agt avail-agts]
-      (when-let [nextup @(rf/subscribe [:qhead])]
-        (move-from-qhead-to-agt agt (agent-time))))))
+    (doseq [agtid avail-agts]
+      (when-let [psgr @(rf/subscribe [:qhead])]
+        (do
+          (rf/dispatch [:behead-queue])
+          (move-from-qhead-to-agt psgr agtid (agent-time))))))
+  (recur))
 
 ;; go routine to move from agents to sinks
 ;; TODO modify to CHECK PROCTIME expired
-((m/go-loop []
-   (async/<! clock-ch-2)
-   (let [agentids (keys @(rf/subscribe [:agents]))]
-     (doseq [agtid agentids]
-       (when @(rf/subscribe [:agent-busy? agtid])
-         (move-from-agt-to-sink agtid))))))
+#_(m/go-loop []
+  (async/<! clock-ch-2)
+  (let [agentids (keys @(rf/subscribe [:agents]))]
+    (doseq [agtid agentids]
+      (when @(rf/subscribe [:agent-busy? agtid])
+        (if (zero? @(rf/subscribe [:proc-time agtid]))
+          (move-from-agt-to-sink agtid)
+          (rf/dispatch [:dec-proc-time agtid])))))
+  (recur))

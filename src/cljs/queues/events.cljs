@@ -32,14 +32,6 @@
        (update-in [:queued] conj psgr))))
 
 (rf/reg-event-db
- :queue-to-agent
- (fn [db [_ agent]]
-   (when-let [psgr (peek (:queued db))]
-     (-> db
-         (update-in [:agents agent :busy] conj psgr)
-         (update-in [:queued] pop)))))
-
-(rf/reg-event-db
  :agent-toggle-open
  (fn [db [_ id]]
       (update-in db [:agents id :open] not)))
@@ -52,14 +44,18 @@
    (update-in db [:sinks sink] conj psgr)))
 
 (rf/reg-event-db
- :qhead-to-agt
- (fn [db [_ agtid proctime]]
+ :behead-queue
+ (fn [db _]
+   (update-in db [:queued] pop)))
+
+(rf/reg-event-db
+ :psgr-to-agt
+ (fn [db [_ psgr agtid proctime]]
    (-> db
        ;; move head of q to agent
-       (update-in [:agents agtid :busy] conj (peek (:queued db)))
+       (update-in [:agents agtid :busy] conj psgr)
        ;; then update proc-time
-       (update-in [:agents agtid] conj {:proc-time proctime})
-       (update-in [:queued] pop))))
+       (update-in [:agents agtid] conj {:proc-time proctime}))))
 
 (rf/reg-event-db
  :agt-to-sink
@@ -69,6 +65,11 @@
      (-> db
          (update-in [:sinks dest :occupied] conj psgr) ;; add psgr to sink
          (update-in [:agents agtid :busy] pop)))))
+
+(rf/reg-event-db
+ :dec-proc-time
+ (fn [db [_ agtid]]
+   (update-in db [:agents agtid :proc-time] dec)))
 
 ;; send ticks to clock-ch and update :clock in db
 (defn heartbeat

@@ -87,7 +87,18 @@
 (rf/reg-sub
  :agent-busy?
  (fn [db [_ id]]
-   (peek (:busy (id (:agents db))))))
+   (if (peek (:busy (id (:agents db))))
+     true false)))
+
+(rf/reg-sub
+ :agent-working-on
+ (fn [db [_ agtid]]
+   (peek (:busy (agtid (:agents db))))))
+
+(rf/reg-sub
+ :proc-time
+ (fn [db [_ agtid]]
+   (:proc-time (agtid (:agents db)))))
 
 (rf/reg-sub
  :agent-open?
