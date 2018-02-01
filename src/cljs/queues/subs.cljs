@@ -52,6 +52,11 @@
    (peek (:occupied (sink (:sinks db))))))
 
 (rf/reg-sub
+ :occupied
+ (fn [db [_ sinkid]]
+   (:occupied (sinkid (:sinks db)))))
+
+(rf/reg-sub
  :clock
  (fn [db]
    (str (:clock db))))
@@ -77,6 +82,8 @@
  (fn [db [_ id]]
    (id (:agents db))))
 
+;; this returns the head of the busy queue, which is the psgr
+;;  currently being service by this agent, if any; otherwise returns nil
 (rf/reg-sub
  :agent-busy?
  (fn [db [_ id]]

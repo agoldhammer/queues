@@ -107,7 +107,7 @@
          :sinks (add-type #(make-sink % NPSGRS) 5)
          :psgrs #queue []
          :queued #queue []
-         :agents (add-type make-agent 10)}]
+         :agents (into (sorted-map) (add-type make-agent 10))}]
     ;; TODO: this is for testing only; uses only one destination
     (assoc partial-db :psgrs (into #queue []
                                    (make-psgr-list :sink0 (:scheduled
@@ -140,6 +140,10 @@
 (defn move-from-qhead-to-agt
   [agtid proctime]
   (rf/dispatch [:qhead-to-agt agtid proctime]))
+
+(defn move-from-agt-to-sink
+  [agtid]
+  (rf/dispatch [:agt-to-sink agtid]))
 
 ;; go routine to move items from queued to available agent(s)
 ;; On each tick: visit each available agent (open and not busy)

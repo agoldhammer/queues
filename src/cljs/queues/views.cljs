@@ -76,14 +76,39 @@
        (map-indexed #(agent-rect %2 %1)
                     @(rf/subscribe [:agent-ids])))]))
 
+(defn emptyq? [q]
+  (not (peek q)))
+
+(defn pcircles
+  [ps x]
+  (doall
+   (map #(circle (:id %1) %2 6) ps
+        (mower {:nitems (count ps)
+                :xtart (+ x 2)
+                :ystart 2
+                :xspace 15
+                :yspace 20
+                :xmax 173
+                :ymax 190
+                :xmin 10}))))
+
+(defn sink-rect
+  [id ipos]
+  (let [ps @(rf/subscribe [:occupied id])
+        x (* ipos 200)
+        sinkrect (rect id x 0 180 196 "yellow" prn)]
+    (if (emptyq? ps)
+      sinkrect
+      (into [sinkrect] (pcircles ps x)))))
+
 (defn sink-elt
   "Creates set of sink elts with ids from db"
   []
   (fn []
     [:svg {:style {:border "thin solid black"}
            :width 1000 :height 200}
-       (map-indexed #(rect %2 (* %1 200) 0 180 196 "yellow" prn)
-                   @(rf/subscribe [:sink-ids]))]))
+     (doall
+      (map-indexed #(sink-rect %2 %1) @(rf/subscribe [:sink-ids])))]))
 
 (defn display-queued
   []
