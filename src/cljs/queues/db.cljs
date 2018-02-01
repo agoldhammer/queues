@@ -127,6 +127,7 @@
   (not (peek q)))
 
 (declare agent-assign)
+(declare agts-to-sinks)
 ;; go routine to move items from unprocessed to queued
 (m/go-loop []
   (async/<! clock-ch-1)
@@ -136,6 +137,7 @@
         (rf/dispatch [:queue-one nextup])))
     )
   (agent-assign)
+  (agts-to-sinks)
   (recur))
 
 (defn agt-open? [id]
@@ -165,7 +167,7 @@
 ;; and set processing time to random pick from the distribution
 (defn agent-assign
   []
-  (let [agtid (first (available-agents))]
+  (when-let [agtid (first (available-agents))]
     (when-let [psgr @(rf/subscribe [:qhead])]
       (do
         (rf/dispatch [:behead-queue])
@@ -173,12 +175,10 @@
 
 ;; go routine to move from agents to sinks
 ;; TODO modify to CHECK PROCTIME expired
-#_(m/go-loop []
-  (async/<! clock-ch-2)
+(defn agts-to-sinks []
   (let [agentids (keys @(rf/subscribe [:agents]))]
     (doseq [agtid agentids]
       (when @(rf/subscribe [:agent-busy? agtid])
         (if (zero? @(rf/subscribe [:proc-time agtid]))
           (move-from-agt-to-sink agtid)
-          (rf/dispatch [:dec-proc-time agtid])))))
-  (recur))
+          (rf/dispatch [:dec-proc-time agtid]))))))

@@ -82,15 +82,15 @@
 (defn pcircles
   [ps x]
   (doall
-   (map #(circle (:id %1) %2 6) ps
+   (map #(circle (:id %1) %2 2) ps
         (mower {:nitems (count ps)
-                :xtart (+ x 2)
-                :ystart 2
-                :xspace 15
-                :yspace 20
-                :xmax 173
+                :xtart (inc x)
+                :ystart 6
+                :xspace 10
+                :yspace 10
+                :xmax (+ x 176)
                 :ymax 190
-                :xmin 10}))))
+                :xmin 0}))))
 
 (defn sink-rect
   [id ipos]
@@ -99,7 +99,7 @@
         sinkrect (rect id x 0 180 196 "yellow" prn)]
     (if (emptyq? ps)
       sinkrect
-      (seq [sinkrect (circle 1000 [10 10] 6)] #_(pcircles ps x)))))
+      (seq [sinkrect  (pcircles ps x)]))))
 
 (defn sink-elt
   "Creates set of sink elts with ids from db"
