@@ -8,7 +8,7 @@
                     :as m :refer [go alt!]]))
 
 ;; clock channels
-(def clock-ch (async/chan (async/dropping-buffer 5)))
+(def clock-ch (async/chan (async/dropping-buffer 25)))
 
 (def multi-clock (async/mult clock-ch))
 
@@ -19,6 +19,13 @@
 (async/tap multi-clock clock-ch-1)
 
 #_(async/tap multi-clock clock-ch-2)
+
+;; queued channel
+#_(def qchan (async/chan 10))
+
+#_(defn q-one
+  [psgr]
+  (async/>! qchan psgr))
 
 (defn pulse []
   (async/put! clock-ch :pulse))
@@ -119,6 +126,7 @@
 (defn- emptyq? [q]
   (not (peek q)))
 
+(declare agent-assign)
 ;; go routine to move items from unprocessed to queued
 (m/go-loop []
   (async/<! clock-ch-1)
@@ -126,7 +134,9 @@
     (let [now @(rf/subscribe [:clock])]
       (when (> now (:arrived-at nextup))
         (rf/dispatch [:queue-one nextup])))
-    (recur)))
+    )
+  (agent-assign)
+  (recur))
 
 (defn agt-open? [id]
   @(rf/subscribe [:agent-open? id]))
@@ -153,16 +163,13 @@
 ;; On each tick: visit each available agent (open and not busy)
 ;; move psgr from head of queue
 ;; and set processing time to random pick from the distribution
-(m/go-loop []
-  #_(async/<! clock-ch-1)
-
-  (let [avail-agts (available-agents)]
-    (doseq [agtid avail-agts]
-      (when-let [psgr @(rf/subscribe [:qhead])]
-        (do
-          (rf/dispatch [:behead-queue])
-          (move-from-qhead-to-agt psgr agtid (agent-time))))))
-  (recur))
+(defn agent-assign
+  []
+  (let [agtid (first (available-agents))]
+    (when-let [psgr @(rf/subscribe [:qhead])]
+      (do
+        (rf/dispatch [:behead-queue])
+        (move-from-qhead-to-agt psgr agtid (agent-time))))))
 
 ;; go routine to move from agents to sinks
 ;; TODO modify to CHECK PROCTIME expired
