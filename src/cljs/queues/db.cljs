@@ -115,6 +115,7 @@
                                                             (:sinks partial-db)))
                                                             NPSGRS)))))
 
+
 ;; go routine to move items from unprocessed to queued
 (m/go-loop []
   (async/<! clock-ch-1)
@@ -149,9 +150,18 @@
 ;; On each tick: visit each available agent (open and not busy)
 ;; move psgr from head of queue
 ;; and set processing time to random pick from the distribution
-#_(m/go-loop []
-  (async/<! clock-ch-2)
+(m/go-loop []
+  (async/<! clock-ch-1)
   (let [avail-agts (available-agents)]
     (doseq [agt avail-agts]
       (when-let [nextup @(rf/subscribe [:qhead])]
-        (rf/dispatch [:psgr-to-agent (:id agt) (:id nextup) (agent-time)])))))
+        (move-from-qhead-to-agt agt (agent-time))))))
+
+;; go routine to move from agents to sinks
+;; TODO modify to CHECK PROCTIME expired
+((m/go-loop []
+   (async/<! clock-ch-2)
+   (let [agentids (keys @(rf/subscribe [:agents]))]
+     (doseq [agtid agentids]
+       (when @(rf/subscribe [:agent-busy? agtid])
+         (move-from-agt-to-sink agtid))))))

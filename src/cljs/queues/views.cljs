@@ -99,7 +99,7 @@
         sinkrect (rect id x 0 180 196 "yellow" prn)]
     (if (emptyq? ps)
       sinkrect
-      (into [sinkrect] (pcircles ps x)))))
+      (seq [sinkrect (circle 1000 [10 10] 6)] #_(pcircles ps x)))))
 
 (defn sink-elt
   "Creates set of sink elts with ids from db"
