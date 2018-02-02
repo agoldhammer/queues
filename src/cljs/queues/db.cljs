@@ -20,19 +20,13 @@
 
 #_(async/tap multi-clock clock-ch-2)
 
-;; queued channel
-#_(def qchan (async/chan 10))
-
-#_(defn q-one
-  [psgr]
-  (async/>! qchan psgr))
-
 (defn pulse []
   (async/put! clock-ch :pulse))
 
 ;; end clocking
 
-(def sched-deps [3.25 3.5 4.0 4.5 5])
+(def sched-deps [3.0 3.5 4.0 4.5 5.25])
+(def color ["red", "orange", "blue", "green", "magenta"])
 
 (def NPSGRS 300)
 
@@ -41,6 +35,7 @@
   {:id (keyword (str "sink" idnum))
    :capacity capacity
    :occupied #queue []
+   :color (color idnum)
    :scheduled (* 3600 (sched-deps idnum))})
 
 (defn make-agent
@@ -62,7 +57,7 @@
 ;; we model arrival times as normally distributed around
 ;; 90 minutes ahead of departure, with sd of 30 mins
 
-(def arrival-t-dist (d/normal {:mu 5400 :sd 1800}))
+(def arrival-t-dist (d/normal {:mu 5400 :sd 2200}))
 
 (def agent-t-dist (d/normal {:mu 120 :sd 25}))
 
@@ -82,6 +77,14 @@
    :arrived-at arrived-at
    :processed-at processed-at})
 
+(defn make-passenger
+  [idnum dest color arrived-at processed-at]
+  {:id (keyword (str "psgr" idnum (name dest)))
+   :dest dest
+   :color color
+   :arrived-at arrived-at
+   :processed-at processed-at})
+
 (defn calc-arr
   [scheduled delta]
   (let [arr (- scheduled delta)]
@@ -90,6 +93,27 @@
       (> arr scheduled) scheduled
       :else arr)))
 
+(def partial-db
+  {:name " via re-frame"
+   :clock 0
+   :running false
+   :sinks (add-type #(make-sink % NPSGRS) 5)
+   :queued #queue []
+   :agents (into (sorted-map) (add-type make-agent 10))})
+
+(defn make-passengers
+  [dest n]
+  (let [deltas (gen-arrival-deltas n)
+        sinks (:sinks partial-db)
+        sink (dest sinks)
+        color (:color sink)
+        scheduled (:scheduled sink)]
+    (map-indexed #(make-passenger %1 dest color (calc-arr scheduled %2) 0)
+                     deltas)))
+
+(defn sort-psgrs
+  [psgrs]
+  (sort-by #(:arrived-at %) psgrs))
 (defn make-psgrs
   [dest scheduled n]
   (let [deltas (gen-arrival-deltas n)]
@@ -97,30 +121,17 @@
                              (calc-arr scheduled %2) 0)
                  deltas)))
 
-(defn sort-psgrs
-  [psgrs]
-  (sort-by #(:arrived-at %) psgrs))
+(defn make-passenger-lists
+  [n]
+  (let [dests (keys (:sinks partial-db))]
+    (apply concat (map #(make-passengers %1 n) dests))))
 
-;; TODO this is for testing only; need to concat psgr lists
-;; for all sinks in final version
-(defn make-psgr-list [dest scheduled n]
-  (doall (sort-psgrs (make-psgrs dest scheduled n))))
+(defn make-sorted-passenger-queue
+  [n]
+  (into #queue [](sort-psgrs (make-passenger-lists n))))
 
 (def default-db
-  (let [partial-db
-        {:name " via re-frame"
-         :clock 0
-         :running false
-         :sinks (add-type #(make-sink % NPSGRS) 5)
-         :psgrs #queue []
-         :queued #queue []
-         :agents (into (sorted-map) (add-type make-agent 10))}]
-    ;; TODO: this is for testing only; uses only one destination
-    (assoc partial-db :psgrs (into #queue []
-                                   (make-psgr-list :sink0 (:scheduled
-                                                           (:sink0
-                                                            (:sinks partial-db)))
-                                                            NPSGRS)))))
+    (assoc partial-db :psgrs (make-sorted-passenger-queue NPSGRS)))
 
 
 (defn- emptyq? [q]

@@ -17,7 +17,7 @@
    (keys (:agents db))))
 
 (rf/reg-sub
- ::sinks
+ :sinks
  (fn [db]
    (:sinks db)))
 

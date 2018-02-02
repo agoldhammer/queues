@@ -84,13 +84,13 @@
   (doall
    (map #(circle (:id %1) %2 2) ps
         (mower {:nitems (count ps)
-                :xtart (inc x)
+                :xstart x
                 :ystart 6
                 :xspace 10
                 :yspace 10
                 :xmax (+ x 176)
                 :ymax 190
-                :xmin 0}))))
+                :xmin x}))))
 
 (defn sink-rect
   [id ipos]
