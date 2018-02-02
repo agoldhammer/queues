@@ -1,46 +1,11 @@
 # queues
 
-A [re-frame](https://github.com/Day8/re-frame) application designed to ... well, that part is up to you.
+This is a queuing similator. There are five sinks, or destinations, and ten agents. Agents may be turned on or off by clicking on them.
 
-## Development Mode
+For each client, the agent processing time will be drawn from a random distribution whose parameters can be adjusted. Client arrival time is similarly drawn from a random distribution.
 
-### Start Cider from Emacs:
+Clients will queue in the queuing area if there is no agent available to process them. After processing, each client will be dispatched to the appropriate sink.
 
-Put this in your Emacs config file:
+Maximum queue length will therefore vary randomly.
 
-```
-(setq cider-cljs-lein-repl
-	"(do (require 'figwheel-sidecar.repl-api)
-         (figwheel-sidecar.repl-api/start-figwheel!)
-         (figwheel-sidecar.repl-api/cljs-repl))")
-```
-
-Navigate to a clojurescript file and start a figwheel REPL with `cider-jack-in-clojurescript` or (`C-c M-J`)
-
-### Run application:
-
-```
-lein dev
-```
-
-Figwheel will automatically push cljs changes to the browser.
-
-Wait a bit, then browse to [http://localhost:3449](http://localhost:3449).
-
-### Run tests:
-
-```
-lein clean
-lein doo phantom test once
-```
-
-The above command assumes that you have [phantomjs](https://www.npmjs.com/package/phantomjs) installed. However, please note that [doo](https://github.com/bensu/doo) can be configured to run cljs.test in many other JS environments (chrome, ie, safari, opera, slimer, node, rhino, or nashorn).
-
-## Production Build
-
-
-To compile clojurescript to javascript:
-
-```
-lein build
-```
+This project is still under development. It is written in Clojurescript with Re-frame and will run in any modern browser.
