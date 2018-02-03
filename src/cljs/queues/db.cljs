@@ -28,7 +28,7 @@
 (def sched-deps [3.0 3.5 4.0 4.5 5.25])
 (def color ["red", "orange", "blue", "green", "magenta"])
 
-(def NPSGRS 300)
+(def NPSGRS 180)
 
 (defn make-sink
   [idnum capacity]
@@ -59,7 +59,7 @@
 
 (def arrival-t-dist (d/normal {:mu 5400 :sd 2200}))
 
-(def agent-t-dist (d/normal {:mu 120 :sd 25}))
+(def agent-t-dist (d/normal {:mu 100 :sd 25}))
 
 (defn agent-time
   []

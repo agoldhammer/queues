@@ -3,6 +3,8 @@
             [re-com.core :as c]
             [queues.subs :as subs]
             [queues.events :as events]
+            [goog.string :as gstring]
+            [goog.string.format]
             ))
 
 ;; layout of queues in rows alternating in direction, like mower
@@ -165,7 +167,18 @@
               [c/label :label (str (count @(rf/subscribe [:queued])))]
               HGAP1
               [c/label :label "Not yet arrived"]
-              [c/label :label (str (count @(rf/subscribe [:psgrs])))]]])
+              [c/label :label (str (count @(rf/subscribe [:psgrs])))]
+              HGAP1
+              [c/slider :model 0 :width "100px"
+               :on-change (fn [x] nil)]]])
+
+(defn secs-to-hms
+ [secs]
+  (let [h (Math/floor(/ secs 3600))
+        excess (rem secs 3600)
+        m (Math/floor (/ excess 60))
+        s (rem excess 60)]
+    (gstring/format "%02d:%02d:%02d" h m s)))
 
 (defn main-panel []
   [c/v-box
@@ -180,7 +193,7 @@
                           [c/gap :size "15px"]
                           [c/title
                            :level :level2
-                           :label @(rf/subscribe [:clock])]]]
+                           :label (secs-to-hms @(rf/subscribe [:clock]))]]]
               [c/line]
               [c/gap :size "15px"]
               [sink-area] [agent-area] [queuing-area]]])
