@@ -104,3 +104,19 @@
  :agent-open?
  (fn [db [_ id]]
    (:open (id (:agents db)))))
+
+;; in order to get color of a psgr we use the color of the associated
+;; sink, which we find with a kludge, since each psgr id is of the
+;; form :psgrnnsinkmm, where n and m are integers
+;; so we use the following regexp:
+
+(defn psgrid-to-sinkid
+  [psgrid]
+  (let [m (re-matches #"(psgr\d+)(sink\d+)" (name psgrid))]
+    (keyword (m 2))))
+
+(rf/reg-sub
+ :psgr-to-color
+ (fn [db [_ psgrid]]
+   (let [sinkid (psgrid-to-sinkid psgrid)]
+     (:color (sinkid (:sinks db))))))

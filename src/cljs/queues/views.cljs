@@ -33,8 +33,8 @@
   [id [cx cy] r]
   [:circle {:key id
             :id id
-            :style {:fill :red
-                    :stroke-width 2
+            :style {:fill @(rf/subscribe [:psgr-to-color id])
+                    :stroke-width 1
                     :stroke :black}
             :on-click #(prn (-> % .-target .-id))
             :cx cx
