@@ -180,6 +180,28 @@
         s (rem excess 60)]
     (gstring/format "%02d:%02d:%02d" h m s)))
 
+(defn sink-labels
+  []
+  [c/h-box
+   :margin "10px"
+   :gap "50px"
+   :size "auto"
+   :children [[c/gap :size "10px"]
+              [c/label :label (str (secs-to-hms
+                                    @(rf/subscribe [:scheduled :sink0])))]
+              [c/gap :size "80px"]
+              [c/label :label (str (secs-to-hms
+                                    @(rf/subscribe [:scheduled :sink1])))]
+              [c/gap :size "65px"]
+              [c/label :label (secs-to-hms
+                                    @(rf/subscribe [:scheduled :sink2]))]
+              [c/gap :size "60px"]
+              [c/label :label (secs-to-hms
+                                    @(rf/subscribe [:scheduled :sink3]))]
+              [c/gap :size "60px"]
+              [c/label :label (secs-to-hms
+                                    @(rf/subscribe [:scheduled :sink4]))]]])
+
 (defn main-panel []
   [c/v-box
    :height "100%"
@@ -187,13 +209,17 @@
               [c/gap :size "15px"]
               [c/h-box
                :margin "10px"
-               :children [[c/button :label "Start"
+               :children [[c/button :label "Start/Stop"
                            :style {:background-color "lightblue"}
-                           :on-click #(rf/dispatch [::events/start-stop])]
+                           :on-click #(rf/dispatch [:start-stop])]
+                          [c/gap :size "15px"]
+                          [c/button :label "Reset"
+                           :style {:background-color "LightPink"}
+                           :on-click #(rf/dispatch [:initialize-db])]
                           [c/gap :size "15px"]
                           [c/title
                            :level :level2
                            :label (secs-to-hms @(rf/subscribe [:clock]))]]]
               [c/line]
               [c/gap :size "15px"]
-              [sink-area] [agent-area] [queuing-area]]])
+              [sink-labels][sink-area] [agent-area] [queuing-area]]])

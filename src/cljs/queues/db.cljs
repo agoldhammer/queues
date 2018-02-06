@@ -130,7 +130,8 @@
   [n]
   (into #queue [](sort-psgrs (make-passenger-lists n))))
 
-(def default-db
+(defn make-default-db
+  []
     (assoc partial-db :psgrs (make-sorted-passenger-queue NPSGRS)))
 
 

@@ -5,10 +5,10 @@
 (rf/reg-event-db
  :initialize-db
  (fn  [_ _]
-   db/default-db))
+   (db/make-default-db)))
 
 (rf/reg-event-db
- ::start-stop
+ :start-stop
  (fn [db _]
    (if (:running db)
      (assoc db :running false)
@@ -74,8 +74,10 @@
 ;; send ticks to clock-ch and update :clock in db
 (defn heartbeat
   []
-  (rf/dispatch [::tick])
-  (db/pulse))
+  (when @(rf/subscribe [:running])
+    (do
+      (rf/dispatch [::tick])
+      (db/pulse))))
 
 ;; drive action with regular ticks
 (def clock

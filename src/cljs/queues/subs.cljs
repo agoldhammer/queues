@@ -62,9 +62,9 @@
    (str (:clock db))))
 
 (rf/reg-sub
- :running?
+ :running
  (fn [db]
-   (str (:running db))))
+   (:running db)))
 
 ;; return first psgr in unprocessed queue
 (rf/reg-sub

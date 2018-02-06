@@ -6,3 +6,5 @@ out
 /bak
 .nrepl-port
 *~
+.DS_Store
+resources/public/js/*
