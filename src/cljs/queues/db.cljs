@@ -95,7 +95,9 @@
 
 (def partial-db
   {:name " via re-frame"
+   :speedup 50
    :clock 0
+   :timer-fn nil
    :running false
    :sinks (add-type #(make-sink % NPSGRS) 5)
    :queued #queue []

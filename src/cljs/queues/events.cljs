@@ -2,10 +2,14 @@
   (:require [re-frame.core :as rf]
             [queues.db :as db]))
 
+(declare heartbeat)
+
 (rf/reg-event-db
  :initialize-db
  (fn  [_ _]
-   (db/make-default-db)))
+   (assoc
+    (db/make-default-db)
+    :timer-fn (js/setInterval heartbeat 20))))
 
 (rf/reg-event-db
  :start-stop
@@ -71,6 +75,15 @@
  (fn [db [_ agtid]]
    (update-in db [:agents agtid :proc-time] dec)))
 
+(rf/reg-event-db
+ :speedup-change
+ (fn [db [_ val]]
+   (let [interval (/ 1000 val)]
+     (js/clearInterval (:timer-fn db))
+     (-> db
+         (assoc :speedup val)
+         (assoc :timer-fn (js/setInterval heartbeat interval))))))
+
 ;; send ticks to clock-ch and update :clock in db
 (defn heartbeat
   []
@@ -80,5 +93,5 @@
       (db/pulse))))
 
 ;; drive action with regular ticks
-(def clock
-  (js/setInterval heartbeat 25))
+#_(def clock
+  (js/setInterval heartbeat 20))

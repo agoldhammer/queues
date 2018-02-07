@@ -162,15 +162,19 @@
 (defn title-area []
   [c/h-box
    :margin "10px"
-   :gap "5px"
-   :children [[c/label :label "No. queued"]
-              [c/label :label (str (count @(rf/subscribe [:queued])))]
-              HGAP1
-              [c/label :label "Not yet arrived"]
-              [c/label :label (str (count @(rf/subscribe [:psgrs])))]
-              HGAP1
-              [c/slider :model 0 :width "100px"
-               :on-change (fn [x] nil)]]])
+   :gap "10px"
+   :children [[c/label :label (str "No. queued: " (count @(rf/subscribe [:queued])))
+               :style {:border "double black 4px" :padding "2px"}]
+              [c/label :label (str "Not yet arrived: " (count @(rf/subscribe [:psgrs])))
+               :style {:border "double black 1px" :padding "2px"}]
+              [c/label :label (str "Clock multiplier "
+                                   @(rf/subscribe [:speedup])"x")
+               :style {:border "double black 1px" :padding "2px"}]
+              [c/slider :width "100px"
+               :model @(rf/subscribe [:speedup])
+               :min 1
+               :max 50
+               :on-change (fn [val] (rf/dispatch [:speedup-change val]))]]])
 
 (defn secs-to-hms
  [secs]
@@ -184,23 +188,25 @@
   []
   [c/h-box
    :margin "10px"
-   :gap "50px"
+   :gap "20px"
    :size "auto"
-   :children [[c/gap :size "10px"]
+   :width "80%"
+   :justify :around
+   :children [[c/label :label (str (secs-to-hms
+                                    @(rf/subscribe [:scheduled :sink0])))
+               :style {:color "red" :font-weight "bold"}]
               [c/label :label (str (secs-to-hms
-                                    @(rf/subscribe [:scheduled :sink0])))]
-              [c/gap :size "80px"]
-              [c/label :label (str (secs-to-hms
-                                    @(rf/subscribe [:scheduled :sink1])))]
-              [c/gap :size "65px"]
+                                    @(rf/subscribe [:scheduled :sink1])))
+               :style {:color "orange"}]
               [c/label :label (secs-to-hms
-                                    @(rf/subscribe [:scheduled :sink2]))]
-              [c/gap :size "60px"]
+                               @(rf/subscribe [:scheduled :sink2]))
+               :style {:color "green" :font-weight "bold"}]
               [c/label :label (secs-to-hms
-                                    @(rf/subscribe [:scheduled :sink3]))]
-              [c/gap :size "60px"]
+                               @(rf/subscribe [:scheduled :sink3]))
+               :style {:color "blue" :font-weight "bold"}]
               [c/label :label (secs-to-hms
-                                    @(rf/subscribe [:scheduled :sink4]))]]])
+                               @(rf/subscribe [:scheduled :sink4]))
+               :style {:color "magenta" :font-weight "bold"}]]])
 
 (defn main-panel []
   [c/v-box

@@ -27,6 +27,11 @@
    (sink-id (:sinks db))))
 
 (rf/reg-sub
+ :speedup
+ (fn [db]
+   (:speedup db)))
+
+(rf/reg-sub
  :scheduled
  (fn [db [_ sink-id]]
    (get-in db [:sinks sink-id :scheduled])))
