@@ -43,7 +43,7 @@
   {:id (keyword (str "agent" idnum))
    :busy #queue []
    :proc-time 0
-   :open true})
+   :open false})
 
 (defn add-type
   "add map of ids to n instances of type under type key in db
@@ -196,3 +196,9 @@
         (if (zero? @(rf/subscribe [:proc-time agtid]))
           (move-from-agt-to-sink agtid)
           (rf/dispatch [:dec-proc-time agtid]))))))
+
+(defn close-agents
+  [nclose]
+  (let [agtids (map #(keyword (str "agent" %)) (range nclose))]
+    (doseq [agtid agtids]
+      (rf/dispatch [:close-agent agtid]))))

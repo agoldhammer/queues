@@ -72,8 +72,7 @@
 (defn agent-elt
   []
   (fn []
-     [:svg {:style {:border "thin solid black"}
-           :width 1000 :height 50}
+     [:svg {:width 1000 :height 50}
       (doall
        (map-indexed #(agent-rect %2 %1)
                     @(rf/subscribe [:agent-ids])))]))
@@ -98,7 +97,7 @@
   [id ipos]
   (let [ps @(rf/subscribe [:occupied id])
         x (* ipos 200)
-        sinkrect (rect id x 0 180 196 "yellow" prn)]
+        sinkrect (rect id x 0 180 196 "lightcyan" prn)]
     (if (emptyq? ps)
       sinkrect
       (seq [sinkrect  (pcircles ps x)]))))
@@ -107,8 +106,7 @@
   "Creates set of sink elts with ids from db"
   []
   (fn []
-    [:svg {:style {:border "thin solid black"}
-           :width 1000 :height 200}
+    [:svg {:width 1000 :height 200}
      (doall
       (map-indexed #(sink-rect %2 %1) @(rf/subscribe [:sink-ids])))]))
 

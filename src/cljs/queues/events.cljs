@@ -79,10 +79,16 @@
  :speedup-change
  (fn [db [_ val]]
    (let [interval (/ 1000 val)]
-     (js/clearInterval (:timer-fn db))
+     (when (:timer-fn db)
+       (js/clearInterval (:timer-fn db)))
      (-> db
          (assoc :speedup val)
          (assoc :timer-fn (js/setInterval heartbeat interval))))))
+
+(rf/reg-event-db
+ :close-agent
+ (fn [db [_ agtid]]
+   (assoc-in db [:agents agtid :open] false)))
 
 ;; send ticks to clock-ch and update :clock in db
 (defn heartbeat

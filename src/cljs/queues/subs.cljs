@@ -36,6 +36,16 @@
  (fn [db [_ sink-id]]
    (get-in db [:sinks sink-id :scheduled])))
 
+(defn- count-agt [db agtid]
+  (if (get-in db [:agents agtid :open])
+    1 0))
+
+(rf/reg-sub
+ :count-open-agents
+ (fn [db]
+   (let [agtids (keys (:agents db))]
+     (reduce + (map #(count-agt db %) agtids)))))
+
 (rf/reg-sub
  :psgrs
  (fn [db]
