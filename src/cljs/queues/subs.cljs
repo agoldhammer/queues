@@ -57,6 +57,11 @@
    (:queued db)))
 
 (rf/reg-sub
+ :max-qlength
+ (fn [db]
+   (:max-qlength db)))
+
+(rf/reg-sub
  :qhead
  (fn [db]
    (peek (:queued db))))
@@ -75,6 +80,11 @@
  :clock
  (fn [db]
    (str (:clock db))))
+
+(rf/reg-sub
+ :clock-as-int
+ (fn [db]
+   (:clock db)))
 
 (rf/reg-sub
  :running

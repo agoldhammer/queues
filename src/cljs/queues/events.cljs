@@ -31,9 +31,11 @@
 (rf/reg-event-db
  :queue-one
  (fn [db [_ psgr]]
-   (-> db
-       (update-in [:psgrs] pop)
-       (update-in [:queued] conj psgr))))
+   (let [maxq (max (inc (count (:queued db)))(:max-qlength db))]
+     (-> db
+         (assoc-in [:max-qlength] maxq)
+         (update-in [:psgrs] pop)
+         (update-in [:queued] conj psgr)))))
 
 (rf/reg-event-db
  :agent-toggle-open
@@ -55,11 +57,14 @@
 (rf/reg-event-db
  :psgr-to-agt
  (fn [db [_ psgr agtid proctime]]
-   (-> db
-       ;; move head of q to agent
-       (update-in [:agents agtid :busy] conj psgr)
-       ;; then update proc-time
-       (update-in [:agents agtid] conj {:proc-time proctime}))))
+   (let [clock @(rf/subscribe [:clock-as-int])
+         ;; processed-at is end of processing, so includes proctime
+         updated-psgr (assoc psgr :processed-at (+ clock proctime))]
+     (-> db
+         ;; move head of q to agent
+         (update-in [:agents agtid :busy] conj updated-psgr)
+         ;; then update proc-time
+         (update-in [:agents agtid] conj {:proc-time proctime})))))
 
 (rf/reg-event-db
  :agt-to-sink

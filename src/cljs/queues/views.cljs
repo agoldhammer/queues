@@ -83,7 +83,7 @@
 (defn pcircles
   [ps x]
   (doall
-   (map #(circle (:id %1) %2 2) ps
+   (map #(circle (:id %1) %2 4) ps
         (mower {:nitems (count ps)
                 :xstart x
                 :ystart 6
@@ -93,11 +93,14 @@
                 :ymax 190
                 :xmin x}))))
 
+(defn prn-sink [sinkid]
+  (prn @(rf/subscribe [:sink sinkid])))
+
 (defn sink-rect
   [id ipos]
   (let [ps @(rf/subscribe [:occupied id])
         x (* ipos 200)
-        sinkrect (rect id x 0 180 196 "lightcyan" prn)]
+        sinkrect (rect id x 0 180 196 "lightcyan" prn-sink)]
     (if (emptyq? ps)
       sinkrect
       (seq [sinkrect  (pcircles ps x)]))))
@@ -162,17 +165,20 @@
    :margin "10px"
    :gap "10px"
    :children [[c/label :label (str "No. queued: " (count @(rf/subscribe [:queued])))
-               :style {:border "double black 4px" :padding "2px"}]
+               :style {:border "solid black 1px" :padding "2px"}]
               [c/label :label (str "Not yet arrived: " (count @(rf/subscribe [:psgrs])))
-               :style {:border "double black 1px" :padding "2px"}]
+               :style {:border "solid black 1px" :padding "2px"}]
               [c/label :label (str "Clock multiplier "
                                    @(rf/subscribe [:speedup])"x")
-               :style {:border "double black 1px" :padding "2px"}]
+               :style {:border "solid black 1px" :padding "2px"}]
               [c/slider :width "100px"
                :model @(rf/subscribe [:speedup])
                :min 1
                :max 50
-               :on-change (fn [val] (rf/dispatch [:speedup-change val]))]]])
+               :on-change (fn [val] (rf/dispatch [:speedup-change val]))]
+              [c/label :label (str "Max queue len: "
+                                   @(rf/subscribe [:max-qlength]))
+               :style {:border "solid black 1px" :padding "2px"}]]])
 
 (defn secs-to-hms
  [secs]

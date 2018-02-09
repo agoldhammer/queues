@@ -1,6 +1,10 @@
-# queues
+queues
+=======
 
-This is a queuing similator. There are five sinks, or destinations, and ten agents. Agents may be turned on or off by clicking on them.
+This is a queuing similator.
+--------------------------------
+
+There are five sinks, or destinations, and ten agents. Agents may be turned on or off by clicking on them.
 
 For each client, the agent processing time will be drawn from a random distribution whose parameters can be adjusted. Client arrival time is similarly drawn from a random distribution.
 

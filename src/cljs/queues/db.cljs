@@ -26,7 +26,7 @@
 ;; end clocking
 
 (def sched-deps [3.0 3.5 4.0 4.5 5.25])
-(def color ["red", "orange", "blue", "green", "magenta"])
+(def color ["red", "orange", "green", "blue", "magenta"])
 
 (def NPSGRS 180)
 
@@ -116,6 +116,7 @@
 (defn sort-psgrs
   [psgrs]
   (sort-by #(:arrived-at %) psgrs))
+
 (defn make-psgrs
   [dest scheduled n]
   (let [deltas (gen-arrival-deltas n)]
