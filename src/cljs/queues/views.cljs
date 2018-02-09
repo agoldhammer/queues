@@ -7,6 +7,8 @@
             [goog.string.format]
             ))
 
+(declare secs-to-hms)
+
 ;; layout of queues in rows alternating in direction, like mower
 (defn mower [{:keys [nitems xstart ystart xspace yspace xmax ymax xmin]}]
   (loop [res []
@@ -93,14 +95,22 @@
                 :ymax 190
                 :xmin x}))))
 
-(defn prn-sink [sinkid]
+#_(defn prn-sink [sinkid]
   (prn @(rf/subscribe [:sink sinkid])))
+
+(defn avg-delay
+  "given a sinkid, calc the avg delay of psgrs in the sink's occupied queue"
+  [sinkid]
+  (let [queue @(rf/subscribe [:occupied sinkid])
+        n     (count queue)
+        delay (fn [psgr] (- (:processed-at psgr) (:arrived-at psgr)))]
+    (secs-to-hms(/ (reduce + (map #(delay %) queue)) n))))
 
 (defn sink-rect
   [id ipos]
   (let [ps @(rf/subscribe [:occupied id])
         x (* ipos 200)
-        sinkrect (rect id x 0 180 196 "lightcyan" prn-sink)]
+        sinkrect (rect id x 0 180 196 "lightcyan" (comp prn avg-delay))]
     (if (emptyq? ps)
       sinkrect
       (seq [sinkrect  (pcircles ps x)]))))
