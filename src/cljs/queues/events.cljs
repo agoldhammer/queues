@@ -67,6 +67,21 @@
          (update-in [:agents agtid] conj {:proc-time proctime})))))
 
 (rf/reg-event-db
+ :show-sink-info
+ (fn [db [_ sinkid]]
+   (assoc-in db [:sinks sinkid :info-showing?] true)))
+
+(rf/reg-event-db
+ :hide-sink-info
+ (fn [db [_ sinkid]]
+   (assoc-in db [:sinks sinkid :info-showing?] false)))
+
+(rf/reg-event-db
+ :toggle-info
+ (fn [db [_ _]]
+   (update-in db [:info?] not)))
+
+(rf/reg-event-db
  :agt-to-sink
  (fn [db [_ agtid]]
    (let [psgr (peek (:busy (agtid (:agents db))))

@@ -12,6 +12,16 @@
    (keys (:sinks db))))
 
 (rf/reg-sub
+ :info-showing?
+ (fn [db]
+   (:info? db)))
+
+(rf/reg-sub
+ :sink-info-showing?
+ (fn [db [_ sinkid]]
+   (get-in db [:sinks sinkid :info-showing?])))
+
+(rf/reg-sub
  :agent-ids
  (fn [db]
    (keys (:agents db))))

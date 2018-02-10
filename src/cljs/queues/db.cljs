@@ -34,6 +34,7 @@
   [idnum capacity]
   {:id (keyword (str "sink" idnum))
    :capacity capacity
+   :info-showing? false
    :occupied #queue []
    :color (color idnum)
    :scheduled (* 3600 (sched-deps idnum))})
@@ -95,6 +96,7 @@
 
 (def partial-db
   {:name " via re-frame"
+   :info? false
    :speedup 50
    :clock 0
    :timer-fn nil

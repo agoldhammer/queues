@@ -43,18 +43,18 @@
             :cy cy
             :r r}])
 
+;; actionfns specified as map fns of 0 arity, viz. {:on-click #(clickfn id)}
 (defn rect
-  [id x y w h color clickfn]
-  [:rect {:id id
-          :key id
-          :style {:fill color ;; "#80ffaa" ;; "rgba(200,128,128,0.4)"
-                  :stroke-width 2
-                  :stroke :black}
-          :x x
-          :y y
-          :width w
-          :height h
-          :on-click #(clickfn id)}])
+  [id x y w h color actionfns]
+  [:rect (merge {:id id
+                 :key id
+                 :style {:fill color ;; "#80ffaa" ;; "rgba(200,128,128,0.4)"
+                         :stroke-width 2
+                         :stroke :black}
+                 :x x
+                 :y y
+                 :width w
+                 :height h} actionfns)])
 
 (defn center-of-rect [x y w h]
   [(+ x (/ w 2)) (+ y (/ h 2))])
@@ -66,7 +66,7 @@
         busy  @(rf/subscribe [:agent-working-on id])
         x     (* i-pos 100)
         agtrect (rect id x 0 90 48  color
-                   #(rf/dispatch [:agent-toggle-open %]))]
+                      {:on-click #(rf/dispatch [:agent-toggle-open id])})]
     (if busy
       (seq [agtrect (circle (:id busy) (center-of-rect x 0 90 48) 4)])
       agtrect)))
@@ -104,16 +104,37 @@
   (let [queue @(rf/subscribe [:occupied sinkid])
         n     (count queue)
         delay (fn [psgr] (- (:processed-at psgr) (:arrived-at psgr)))]
-    (secs-to-hms(/ (reduce + (map #(delay %) queue)) n))))
+    (if (zero? n)
+      "Nothing queued yet"
+      (secs-to-hms(/ (reduce + (map #(delay %) queue)) n)))))
+
+(defn all-avg-delay
+  []
+  (let [sinkids @(rf/subscribe [:sink-ids])]
+    (map avg-delay sinkids)))
+
+
 
 (defn sink-rect
   [id ipos]
   (let [ps @(rf/subscribe [:occupied id])
         x (* ipos 200)
-        sinkrect (rect id x 0 180 196 "lightcyan" (comp prn avg-delay))]
+        sinkrect (rect id x 0 180 196 "lightcyan"
+                       {:on-click #((comp prn avg-delay) id)
+                        :on-mouse-over #(rf/dispatch [:show-sink-info id])
+                        :on-mouse-out #(rf/dispatch [:hide-sink-info id])})]
     (if (emptyq? ps)
       sinkrect
       (seq [sinkrect  (pcircles ps x)]))))
+
+(defn sink-info-popup
+  [id rect]
+  [c/popover-anchor-wrapper
+   :key (keyword (str "popover" (name id)))
+   :showing? (rf/subscribe [:sink-info-showing? id])
+   :position :right-below
+   :anchor rect
+   :popover [c/popover-content-wrapper :body "body"]])
 
 (defn sink-elt
   "Creates set of sink elts with ids from db"
@@ -188,7 +209,15 @@
                :on-change (fn [val] (rf/dispatch [:speedup-change val]))]
               [c/label :label (str "Max queue len: "
                                    @(rf/subscribe [:max-qlength]))
-               :style {:border "solid black 1px" :padding "2px"}]]])
+               :style {:border "solid black 1px" :padding "2px"}]
+              [c/popover-anchor-wrapper
+               :showing? (rf/subscribe [:info-showing?])
+               :position :below-center
+               :anchor [c/button :label "info"
+                        :on-click #(rf/dispatch [:toggle-info])]
+               :popover [c/popover-content-wrapper :body (into [:p] (interleave
+                                                                     (all-avg-delay)
+                                                                     (repeat [:br])))]]]])
 
 (defn secs-to-hms
  [secs]
@@ -221,6 +250,8 @@
               [c/label :label (secs-to-hms
                                @(rf/subscribe [:scheduled :sink4]))
                :style {:color "magenta" :font-weight "bold"}]]])
+
+
 
 (defn main-panel []
   [c/v-box
