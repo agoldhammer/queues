@@ -191,6 +191,11 @@
 
 (def HGAP1 [c/gap :size "10px"])
 
+(def speeds [{:id 1 :label "1x"}
+             {:id 10 :label "10x"}
+             {:id 25 :label "25x"}
+             {:id 50 :label "50x"}])
+
 (defn title-area []
   [c/h-box
    :margin "10px"
@@ -199,14 +204,14 @@
                :style {:border "solid black 1px" :padding "2px"}]
               [c/label :label (str "Not yet arrived: " (count @(rf/subscribe [:psgrs])))
                :style {:border "solid black 1px" :padding "2px"}]
-              [c/label :label (str "Clock multiplier "
-                                   @(rf/subscribe [:speedup])"x")
-               :style {:border "solid black 1px" :padding "2px"}]
-              [c/slider :width "100px"
+              [c/single-dropdown :width "auto"
+               :style {:border "solid black 1px" :padding "2px"}
                :model @(rf/subscribe [:speedup])
-               :min 1
-               :max 50
-               :on-change (fn [val] (rf/dispatch [:speedup-change val]))]
+               :choices speeds
+               :id-fn #(:id %)
+               :label-fn #(str "Clock multiplier: " (:label %))
+               :on-change (fn [val] (rf/dispatch [:speedup-change val]))
+               ]
               [c/label :label (str "Max queue len: "
                                    @(rf/subscribe [:max-qlength]))
                :style {:border "solid black 1px" :padding "2px"}]
