@@ -67,16 +67,6 @@
          (update-in [:agents agtid] conj {:proc-time proctime})))))
 
 (rf/reg-event-db
- :show-sink-info
- (fn [db [_ sinkid]]
-   (assoc-in db [:sinks sinkid :info-showing?] true)))
-
-(rf/reg-event-db
- :hide-sink-info
- (fn [db [_ sinkid]]
-   (assoc-in db [:sinks sinkid :info-showing?] false)))
-
-(rf/reg-event-db
  :toggle-info
  (fn [db [_ _]]
    (update-in db [:info?] not)))
@@ -117,7 +107,3 @@
     (do
       (rf/dispatch [::tick])
       (db/pulse))))
-
-;; drive action with regular ticks
-#_(def clock
-  (js/setInterval heartbeat 20))

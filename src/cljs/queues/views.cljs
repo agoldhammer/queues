@@ -120,21 +120,10 @@
   (let [ps @(rf/subscribe [:occupied id])
         x (* ipos 200)
         sinkrect (rect id x 0 180 196 "lightcyan"
-                       {:on-click #((comp prn avg-delay) id)
-                        :on-mouse-over #(rf/dispatch [:show-sink-info id])
-                        :on-mouse-out #(rf/dispatch [:hide-sink-info id])})]
+                       {:on-click #((comp prn avg-delay) id)})]
     (if (emptyq? ps)
       sinkrect
       (seq [sinkrect  (pcircles ps x)]))))
-
-(defn sink-info-popup
-  [id rect]
-  [c/popover-anchor-wrapper
-   :key (keyword (str "popover" (name id)))
-   :showing? (rf/subscribe [:sink-info-showing? id])
-   :position :right-below
-   :anchor rect
-   :popover [c/popover-content-wrapper :body "body"]])
 
 (defn sink-elt
   "Creates set of sink elts with ids from db"
@@ -255,8 +244,6 @@
               [c/label :label (secs-to-hms
                                @(rf/subscribe [:scheduled :sink4]))
                :style {:color "magenta" :font-weight "bold"}]]])
-
-
 
 (defn main-panel []
   [c/v-box
