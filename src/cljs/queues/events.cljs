@@ -9,7 +9,7 @@
  (fn  [_ _]
    (assoc
     (db/make-default-db)
-    :timer-fn (js/setInterval heartbeat 20))))
+    :timer-fn (js/setInterval heartbeat 50))))
 
 (rf/reg-event-db
  :start-stop
