@@ -24,7 +24,9 @@
   :aliases {"dev" ["do" "clean"
                         ["pdo" ["figwheel" "dev"]]]
             "build" ["do" "clean"
-                          ["cljsbuild" "once" "min"]]}
+                     ["cljsbuild" "once" "min"]]
+            "devalt" ["do" "clean"
+                      ["cljsbuild" "once" "alt"]]}
 
   :profiles
   {:dev
@@ -58,6 +60,14 @@
                     :output-to       "resources/public/js/compiled/app.js"
                     :optimizations   :advanced
                     :closure-defines {goog.DEBUG false}
+                    :pretty-print    false}}
+
+    {:id           "alt"
+     :source-paths ["src/cljs"]
+     :compiler     {:main            queues.core
+                    :output-to       "resources/public/js/compiled/app.js"
+                    :optimizations   :simple
+                    :closure-defines {goog.DEBUG true}
                     :pretty-print    false}}
 
     {:id           "test"

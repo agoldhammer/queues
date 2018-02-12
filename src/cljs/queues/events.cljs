@@ -7,9 +7,11 @@
 (rf/reg-event-db
  :initialize-db
  (fn  [_ _]
-   (assoc
-    (db/make-default-db)
-    :timer-fn (js/setInterval heartbeat 50))))
+   (let [temp (db/make-default-db)
+         speedup (:speedup temp)]
+     (assoc
+      temp
+      :timer-fn (js/setInterval heartbeat (/ 1000 speedup))))))
 
 (rf/reg-event-db
  :start-stop
