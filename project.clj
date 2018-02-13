@@ -25,8 +25,9 @@
                         ["pdo" ["figwheel" "dev"]]]
             "build" ["do" "clean"
                      ["cljsbuild" "once" "min"]]
-            "devalt" ["do" "clean"
-                      ["cljsbuild" "once" "alt"]]}
+            ;; "devalt" ["do" "clean"
+               ;;       ["cljsbuild" "once" "alt"]]
+            }
 
   :profiles
   {:dev
@@ -67,13 +68,13 @@
                     ;; end additions
                     :pretty-print    false}}
 
-    {:id           "alt"
-     :source-paths ["src/cljs"]
-     :compiler     {:main            queues.core
-                    :output-to       "resources/public/js/compiled/app.js"
-                    :optimizations   :simple
-                    :closure-defines {goog.DEBUG true}
-                    :pretty-print    false}}
+    ;; {:id           "alt"
+    ;;  :source-paths ["src/cljs"]
+    ;;  :compiler     {:main            queues.core
+    ;;                 :output-to       "resources/public/js/compiled/app.js"
+    ;;                 :optimizations   :simple
+    ;;                 :closure-defines {goog.DEBUG true}
+    ;;                 :pretty-print    false}}
 
     {:id           "test"
      :source-paths ["src/cljs" "test/cljs"]

@@ -113,8 +113,6 @@
   (let [sinkids @(rf/subscribe [:sink-ids])]
     (map avg-delay sinkids)))
 
-
-
 (defn sink-rect
   [id ipos]
   (let [ps @(rf/subscribe [:occupied id])
@@ -178,8 +176,6 @@
    :align :center
    :children [[queue-elt]]])
 
-(def HGAP1 [c/gap :size "10px"])
-
 (def speeds [{:id 1 :label "1x"}
              {:id 10 :label "10x"}
              {:id 25 :label "25x"}
@@ -199,7 +195,9 @@
                :choices speeds
                :id-fn #(:id %)
                :label-fn #(str "Clock multiplier: " (:label %))
-               :on-change (fn [val] (rf/dispatch [:speedup-change val]))
+               :on-change (fn [val] ((when-not (zero? val)
+                                       rf/dispatch) [:speedup-change val]
+                                     nil))
                ]
               [c/label :label (str "Max queue len: "
                                    @(rf/subscribe [:max-qlength]))
@@ -225,9 +223,9 @@
   []
   [c/h-box
    :margin "10px"
-   :gap "20px"
-   :size "auto"
-   :width "80%"
+   :gap "10px"
+   :size "initial"
+   :width "1000px"
    :justify :around
    :children [[c/label :label (str (secs-to-hms
                                     @(rf/subscribe [:scheduled :sink0])))
