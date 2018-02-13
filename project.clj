@@ -59,7 +59,12 @@
      :compiler     {:main            queues.core
                     :output-to       "resources/public/js/compiled/app.js"
                     :optimizations   :advanced
-                    :closure-defines {goog.DEBUG false}
+                    ;; :closure-defines {goog.DEBUG false}
+                    ;; added for debugging
+                    ;; :verbose         false
+                    :closure-defines {goog.DEBUG true}
+                    ;; :pseudo-names    true
+                    ;; end additions
                     :pretty-print    false}}
 
     {:id           "alt"

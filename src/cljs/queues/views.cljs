@@ -38,7 +38,7 @@
             :style {:fill @(rf/subscribe [:psgr-to-color id])
                     :stroke-width 1
                     :stroke :black}
-            :on-click #(prn (-> % .-target .-id))
+            ;; :on-click #(prn (-> % .-target .-id))
             :cx cx
             :cy cy
             :r r}])
@@ -120,7 +120,7 @@
   (let [ps @(rf/subscribe [:occupied id])
         x (* ipos 200)
         sinkrect (rect id x 0 180 196 "lightcyan"
-                       {:on-click #((comp prn avg-delay) id)})]
+                       {:on-click #((comp str avg-delay) id)})]
     (if (emptyq? ps)
       sinkrect
       (seq [sinkrect  (pcircles ps x)]))))
